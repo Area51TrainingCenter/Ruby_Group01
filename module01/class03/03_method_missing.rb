@@ -15,18 +15,39 @@ class Instagram
 	end
 end
 
-class InstagramMedia
-	def initialize(attributes)
-		@attributes = attributes
+class SuperHash
+	def initialize(hash)
+		@hash = hash
 	end
 
 	def method_missing(method_name)
-		if @attributes.keys.include?(method_name.to_s)
-			@attributes[method_name.to_s]
+		if @hash.keys.include?(method_name.to_s)
+			value = @hash[method_name.to_s]
+
+			if value.is_a? Hash
+				SuperHash.new(value)
+			else
+				value
+			end
 		else
 			super
 		end
 	end
+end
+
+class InstagramMedia < SuperHash
+	# attr_accessor :attributes
+	# def initialize(attributes)
+	# 	self.attributes = attributes
+	# end
+
+	# def method_missing(method_name)
+	# 	if @attributes.keys.include?(method_name.to_s)
+	# 		@attributes[method_name.to_s]
+	# 	else
+	# 		super
+	# 	end
+	# end
 
 	# def likes
 	# 	@attributes['likes']
@@ -44,3 +65,13 @@ class InstagramMedia
 	# 	@attributes['images']
 	# end
 end
+
+# class Hash
+# 	def method_missing(method_name)
+# 		if self.keys.include?(method_name.to_s)
+# 			self[method_name.to_s]
+# 		else
+# 			super
+# 		end
+# 	end
+# end
