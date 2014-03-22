@@ -1,10 +1,11 @@
 require 'asciiart'
 require "instagram"
-require 'flickr'
+require 'flickraw'
 require 'pp'
 
 CLIENT_ID = "4f4063bc66cf4c0cb6754b11d44014b6"
 FLICKR_API_KEY = "b872f152d394d2062eae38a04664434f"
+FLICKR_SHARED_SECRET = "a368e75758015a8e"
 
 Instagram.configure do |config|
   config.client_id = CLIENT_ID
@@ -21,10 +22,17 @@ class InstagramImage
 end
 
 class FlickrImage
-  # http://www.flickr.com/services/apps/create/
+  # gem install flickraw
   def initialize(index = 0)
-    flickr = Flickr.new(FLICKR_API_KEY)
-    @media = flickr.photos[index]
+    FlickRaw.api_key = FLICKR_API_KEY
+    FlickRaw.shared_secret = FLICKR_SHARED_SECRET
+
+    flickr = FlickRaw::Flickr.new
+    @media = flickr.photos.getRecent[index]
+  end
+
+  def image
+    FlickRaw.url_b(@media)
   end
 end
 
