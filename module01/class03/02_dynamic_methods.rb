@@ -1,8 +1,14 @@
 class Object
 	def self.my_attr_accessor(*args)
 		args.each do |arg|
+			# arg : title, price, description, publisher
 			define_method(arg.to_sym) do
 				instance_variable_get("@#{arg}".to_sym)
+			end
+
+			# arg : title=, price=, description=, publisher=
+			define_method("#{arg}=".to_sym) do |value|
+				instance_variable_set("@#{arg}".to_sym, value)
 			end
 		end
 	end
