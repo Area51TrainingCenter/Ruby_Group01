@@ -31,8 +31,12 @@ class FlickrImage
     @media = flickr.photos.getRecent[index]
   end
 
-  def image
-    FlickRaw.url_b(@media)
+  # def image
+  #   FlickRaw.url_b(@media)
+  # end
+
+  def method_missing(method_name)
+    puts method_name
   end
 end
 
