@@ -1,4 +1,5 @@
 # sudo apt-get install libmagickwand-dev
+# sudo gem install rmagick
 require 'asciiart'
 
 url = "http://www.levihackwith.com/wp-content/uploads/2011/10/github-logo.png"
