@@ -2,77 +2,89 @@ require 'pp'
 require 'open-uri'
 
 class App
+  attr_accessor :status, :headers, :response, :routes
+
+  def initialize
+    self.response = ""
+    self.headers = {
+      'Content-Type' => 'text/html'
+    }
+    self.status = 200
+    self.routes = {
+      get: {},
+      post: {}
+    }
+  end
+
+  def get(route, controller_action)
+    self.routes[:get][route] = controller_action
+  end
+
+  def post(route, controller_action)
+    self.routes[:post][route] = controller_action
+  end
+
 	def call(env)
-		@env = env
+    path = env["PATH_INFO"].split('/')
 
-		pp env
+    if env["REQUEST_METHOD"] == "GET"
+      if self.routes[:get].include?(env["PATH_INFO"])
+        controller_action = self.routes[:get][env["PATH_INFO"]]
 
-		path = env["PATH_INFO"].split('/')
+        controller, action = controller_action.split('#')
 
-		if path[0] == ""
-			path.shift
-		end
+        require "./controllers/#{controller}_controller"
 
-		path ||= []
+        klass_name  = "#{controller.capitalize}Controller"
+        controller_klass = Object.const_get(klass_name)
+        pp controller_klass
+        # "home_controller"
+        # klass_name => "HomeController"
+        # controller = controller_action.split('#')[0]
+        # action = controller_action.split('#')[1]
 
-		pp path
-
-		response = ""
-		headers = {
-			'Content-Type' => 'text/html'
-		}
-		status = 200
-
-    # "/posts/123-mi-primer-post"
-
-		if path[0] == "posts"
-			if path[1].to_s == ""
-				response = "<h1>Mi blog</h1>"
-			else
-				id = path.last.to_i
-
-				begin
-					response = open("./posts/#{id}.html").read
-				rescue Exception => e
-					response = "Post no encontrado"
-					status = 404
-				end
-			end
-		end
+        pp "controller_action: #{controller_action}"
+      end
+      pp self.routes[:get]
+    elsif env["REQUEST_METHOD"] == "POST"
+      pp self.routes[:post]
+    end
 
 		if path.last.to_s.include?(".css")
-			headers['Content-Type'] = 'text/css'
-			status = 200
+			self.headers['Content-Type'] = 'text/css'
+			self.status = 200
 
 			begin
-				response = open("./assets/#{path.last}").read
+				self.response = open("./assets/#{path.last}").read
 			rescue Exception => e
-				response = ""
-				status = 404
+				self.response = ""
+				self.status = 404
 			end
 		end
 
     if path.last.to_s.include?(".png")
-      headers['Content-Type'] = 'image/png'
-      status = 200
+      self.headers['Content-Type'] = 'image/png'
+      self.status = 200
 
       begin
-        response = open("./assets/#{path.last}").read
+        self.response = open("./assets/#{path.last}").read
       rescue Exception => e
-        response = ""
-        status = 404
+        self.response = ""
+        self.status = 404
       end
     end
 
-		to_response(status, headers, response)
+    # http://reference.sitepoint.com/html/mime-types-full
+
+		to_response
 	end
 
-	def to_response(status, headers, response)
-		if headers['Content-Type'] == "text/html"
+	def to_response
+		if self.headers['Content-Type'] == "text/html"
 			layout = "<!DOCTYPE html><html><head><link href=\"/assets/styles.css\" rel=\"stylesheet\" media=\"all\" /></head><body>{{response}}</body></html>"
-			response = layout.gsub("{{response}}", response)
+			self.response = layout.gsub("{{response}}", self.response)
 		end
 
-		[status, headers, [response]]
+		[ self.status, self.headers, [ self.response ] ]
 	end
 end
