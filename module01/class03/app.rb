@@ -60,6 +60,7 @@ class App
 			layout = "<!DOCTYPE html><html><head><link href=\"/assets/styles.css\" rel=\"stylesheet\" media=\"all\" /></head><body>{{response}}</body></html>"
 			response = layout.gsub("{{response}}", response)
 		end
+    
 		[status, headers, [response]]
 	end
 end
