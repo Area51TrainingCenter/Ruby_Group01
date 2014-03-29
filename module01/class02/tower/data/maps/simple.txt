@@ -1,9 +1,22 @@
-###############~
-#............~~~
-A.**********.~~B
-#**..........~~~
-##**....****~~~~
-##*..****.$~~~~~
-###.....*.~~~~~~
-~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~
+class Router
+end
+
+class Controller
+end
+
+class Model
+end
+
+
+class lala
+ def call
+  [200, {}, ["dfdfd"]]
+ end
+
+
+ def length
+ end
+end
+
+app = Rack::Thin.new
+app.run lala, port: 3000

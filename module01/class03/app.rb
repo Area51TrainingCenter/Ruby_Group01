@@ -5,40 +5,61 @@ class App
 	def call(env)
 		@env = env
 
+		pp env
+
 		path = env["PATH_INFO"].split('/')
 
 		if path[0] == ""
 			path.shift
 		end
 
+		path ||= []
+
 		pp path
 
 		response = ""
+		headers = {
+			'Content-Type' => 'text/html'
+		}
 		status = 200
+
+    # "/posts/123-mi-primer-post"
 
 		if path[0] == "posts"
 			if path[1].to_s == ""
 				response = "<h1>Mi blog</h1>"
 			else
-				response = "<h1>#{path[1].gsub('-', ' ')}</h1>"
+				id = path.last.to_i
+
+				begin
+					response = open("./posts/#{id}.html").read
+				rescue Exception => e
+					response = "Post no encontrado"
+					status = 404
+				end
 			end
 		end
 
-		id = path.last.to_i
+		if path.last.to_s.include?(".css")
+			headers['Content-Type'] = 'text/css'
+			status = 200
 
-		begin
-			response = open("./posts/#{id}.html").read
-		rescue Exception => e
-			response = "Post no encontrado"
-			status = 404
+			begin
+				response = open("./assets/#{path.last}").read
+			rescue Exception => e
+				response = ""
+				status = 404
+			end
 		end
 
-		to_response(status, response)
+		to_response(status, headers, response)
 	end
 
-	def to_response(status, response)
-		layout = "<!DOCTYPE html><html><head></head><body>{{response}}</body></html>"
-		response = layout.gsub("{{response}}", response)
-		[status, { 'Content-Type' => 'text/html' }, [response]]
+	def to_response(status, headers, response)
+		if headers['Content-Type'] == "text/html"
+			layout = "<!DOCTYPE html><html><head><link href=\"/assets/styles.css\" rel=\"stylesheet\" media=\"all\" /></head><body>{{response}}</body></html>"
+			response = layout.gsub("{{response}}", response)
+		end
+		[status, headers, [response]]
 	end
 end
