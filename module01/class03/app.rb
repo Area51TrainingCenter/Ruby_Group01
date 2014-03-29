@@ -52,6 +52,18 @@ class App
 			end
 		end
 
+    if path.last.to_s.include?(".png")
+      headers['Content-Type'] = 'image/png'
+      status = 200
+
+      begin
+        response = open("./assets/#{path.last}").read
+      rescue Exception => e
+        response = ""
+        status = 404
+      end
+    end
+
 		to_response(status, headers, response)
 	end
 
@@ -60,7 +72,7 @@ class App
 			layout = "<!DOCTYPE html><html><head><link href=\"/assets/styles.css\" rel=\"stylesheet\" media=\"all\" /></head><body>{{response}}</body></html>"
 			response = layout.gsub("{{response}}", response)
 		end
-    
+
 		[status, headers, [response]]
 	end
 end
