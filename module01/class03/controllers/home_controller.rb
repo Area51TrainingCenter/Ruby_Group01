@@ -1,5 +1,9 @@
-class HomeController
+require './controllers/base_controller'
+
+class HomeController < BaseController
   def index
-    "home controller - index action"
+    puts "home controller - index action"
+
+    render "index"
   end
 end

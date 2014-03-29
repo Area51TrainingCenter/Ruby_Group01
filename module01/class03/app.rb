@@ -5,11 +5,6 @@ class App
   attr_accessor :status, :headers, :response, :routes
 
   def initialize
-    self.response = ""
-    self.headers = {
-      'Content-Type' => 'text/html'
-    }
-    self.status = 200
     self.routes = {
       get: {},
       post: {}
@@ -25,49 +20,65 @@ class App
   end
 
 	def call(env)
-    path = env["PATH_INFO"].split('/')
+    current_path = env["PATH_INFO"]
+
+    if current_path =~ /\/$/
+      current_path = current_path.gsub(/(.*)\/$/, "\\1")
+    end
+
+    self.response = ""
+    self.headers = {
+      'Content-Type' => 'text/html'
+    }
+    self.status = 200
 
     if env["REQUEST_METHOD"] == "GET"
-      if self.routes[:get].include?(env["PATH_INFO"])
-        controller_action = self.routes[:get][env["PATH_INFO"]]
+      if self.routes[:get].include?(current_path)
+        controller_action = self.routes[:get][current_path]
 
-        controller, action = controller_action.split('#')
+        controller_name, action_name = controller_action.split('#')
 
-        require "./controllers/#{controller}_controller"
+        params = {
+          controller: controller_name,
+          action: action_name
+        }
 
-        klass_name  = "#{controller.capitalize}Controller"
+        require "./controllers/#{controller_name}_controller"
+
+        klass_name  = "#{controller_name.capitalize}Controller"
         controller_klass = Object.const_get(klass_name)
-        pp controller_klass
+        controller = controller_klass.new(params)
         # "home_controller"
         # klass_name => "HomeController"
         # controller = controller_action.split('#')[0]
         # action = controller_action.split('#')[1]
 
         pp "controller_action: #{controller_action}"
+        self.response = controller.send(action_name.to_sym)
       end
       pp self.routes[:get]
     elsif env["REQUEST_METHOD"] == "POST"
       pp self.routes[:post]
     end
 
-		if path.last.to_s.include?(".css")
+		if current_path.include?(".css")
 			self.headers['Content-Type'] = 'text/css'
 			self.status = 200
 
 			begin
-				self.response = open("./assets/#{path.last}").read
+				self.response = open("./assets/#{current_path.split('/').pop}").read
 			rescue Exception => e
 				self.response = ""
 				self.status = 404
 			end
 		end
 
-    if path.last.to_s.include?(".png")
+    if current_path.include?(".png")
       self.headers['Content-Type'] = 'image/png'
       self.status = 200
 
       begin
-        self.response = open("./assets/#{path.last}").read
+        self.response = open("./assets/#{current_path.split('/').pop}").read
       rescue Exception => e
         self.response = ""
         self.status = 404
@@ -80,11 +91,6 @@ class App
 	end
 
 	def to_response
-		if self.headers['Content-Type'] == "text/html"
-			layout = "<!DOCTYPE html><html><head><link href=\"/assets/styles.css\" rel=\"stylesheet\" media=\"all\" /></head><body>{{response}}</body></html>"
-			self.response = layout.gsub("{{response}}", self.response)
-		end
-
 		[ self.status, self.headers, [ self.response ] ]
 	end
 end
