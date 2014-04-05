@@ -5,4 +5,6 @@ class Photo < ActiveRecord::Base
   has_many :categories, through: :photo_categories
   validates :title, presence: true
 
+
+
 end
