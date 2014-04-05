@@ -33,6 +33,7 @@ class App
     self.status = 200
 
     if env["REQUEST_METHOD"] == "GET"
+      
       if self.routes[:get].include?(current_path)
         controller_action = self.routes[:get][current_path]
 
