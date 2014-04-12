@@ -21,6 +21,18 @@ class PhotosController < ApplicationController
   def edit
   end
 
+  def search
+    @results = Photo.search(params)
+
+
+    if params[:order].present? # ASC & DESC
+      @results = @results.order("created_at ?", params[:order])
+    end
+
+  end
+
+
+
   # POST /photos
   # POST /photos.json
   def create

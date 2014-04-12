@@ -5,6 +5,18 @@ class Photo < ActiveRecord::Base
   has_many :categories, through: :photo_categories
   validates :title, presence: true
 
+  def self.search(params)
+    results = Photo.all
+    # field = :title
+    # value = "Probando"
+    params.each do |field, value|
+      if value.present?
+        results = results.where(field => value )
+      end
+    end    
 
+    results
+
+  end
 
 end
