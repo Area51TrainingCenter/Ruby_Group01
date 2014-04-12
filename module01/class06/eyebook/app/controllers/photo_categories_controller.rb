@@ -1,0 +1,2 @@
+class PhotoCategoriesController < ApplicationController
+end
