@@ -1,0 +1,14 @@
+rails generate scaffold permission name:string active_till:datetime
+
+:string
+:text
+:date
+:datetime
+:integer
+:decimal{8,2}  999999.99
+:boolean
+
+first_name last_name age:integer gender bio:text username born_at:datetime address telephone credits:decimal{8,2}
+
+rails generate scaffold user first_name last_name age:integer gender bio:text username born_at:datetime address telephone credits:decimal{8,2}
+

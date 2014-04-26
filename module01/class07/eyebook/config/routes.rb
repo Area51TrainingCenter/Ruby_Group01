@@ -13,8 +13,10 @@ Eyebook::Application.routes.draw do
 
   get "/photos/:year" => "photos#index"
   get 'gatitos' => "photos#gatitos"
- 
- root "photos#index"
+  
+  get "/auth/:provider/callback" => "photos#index"
+
+  root "photos#index"
  
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

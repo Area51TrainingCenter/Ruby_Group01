@@ -1,5 +1,13 @@
 <h1>Eyebook!</h1>
 
+<p><%= params[:oauth_token] %></p>
+<p>
+  <%= request.env['omniauth.auth'].to_json %>
+</p>
+<%= image_tag request.env["omniauth.auth"]["info"]["image"] if request.env["omniauth.auth"] && request.env["omniauth.auth"]["info"] %>
+
+
+
 <%= form_tag "/photos/search" do %>
  <%= text_field_tag "title" %>
  <%= submit_tag "Buscar" %>
