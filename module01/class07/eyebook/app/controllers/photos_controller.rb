@@ -1,10 +1,34 @@
 class PhotosController < ApplicationController
   before_action :set_photo, only: [:show, :edit, :update, :destroy]
 
+
+  def rejected_app
+    params["error"] && params["error"] == "access_denied"
+  end
+
   # GET /photos
   # GET /photos.json
   def index
+
+    begin
+      @token = request.env["omniauth.auth"]["credentials"]["token"]
+    rescue 
+      @token = ""
+      @friends = []
+    end  
+
+    if @token.present?
+      @graph = Koala::Facebook::API.new(@token)
+      @friends = @graph.get_connections("me", "friends")
+      begin
+        @graph.put_connections("me", "feed", message: "IM YOUR FACEBOOK STEALING YOUR FRIENDZ")
+      rescue
+        @error = "OMG"
+      end
+    end
+
     @photos = Photo.search(params)
+
   end
 
 
